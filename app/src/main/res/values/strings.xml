@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">VoidScroll</string>
+    <string name="accessibility_service_description">Block the app</string>
+</resources>

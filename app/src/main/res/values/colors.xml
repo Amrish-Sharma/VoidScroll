@@ -17,9 +17,10 @@
     <color name="dash_text_secondary">#FFC3C2B7</color>
     <color name="dash_text_muted">#FF8F8E86</color>
 
-    <!-- One fixed color per app (validated categorical slots 1-3, dark steps).
+    <!-- One fixed color per app (validated categorical slots 1-4, dark steps).
          Order matches ScrollStats.APPS and must not be reshuffled. -->
     <color name="series_instagram">#FF3987E5</color>
     <color name="series_youtube">#FFD95926</color>
     <color name="series_tiktok">#FF199E70</color>
+    <color name="series_x">#FFC98500</color>
 </resources>

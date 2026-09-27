@@ -296,6 +296,10 @@
             <include
                 android:id="@+id/rowTiktok"
                 layout="@layout/item_app_stat" />
+
+            <include
+                android:id="@+id/rowX"
+                layout="@layout/item_app_stat" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

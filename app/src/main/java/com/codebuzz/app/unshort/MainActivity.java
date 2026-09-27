@@ -39,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
             4, 10, 20, 30, 60, 120, 180, 240, 360, 480, 720, 960, 1440};
 
     private static final int[] APP_LABELS = {
-            R.string.app_label_instagram, R.string.app_label_youtube, R.string.app_label_tiktok};
-    private static final int[] APP_ROWS = {R.id.rowInstagram, R.id.rowYoutube, R.id.rowTiktok};
+            R.string.app_label_instagram, R.string.app_label_youtube, R.string.app_label_tiktok,
+            R.string.app_label_x};
+    private static final int[] APP_ROWS = {R.id.rowInstagram, R.id.rowYoutube, R.id.rowTiktok, R.id.rowX};
 
     // Asked for when a Focus Session starts; once granted, re-post the session's
     // notification, which was dropped while the permission was missing.
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 ContextCompat.getColor(this, R.color.series_instagram),
                 ContextCompat.getColor(this, R.color.series_youtube),
                 ContextCompat.getColor(this, R.color.series_tiktok),
+                ContextCompat.getColor(this, R.color.series_x),
         };
 
         findViewById(R.id.openSettingsButton).setOnClickListener(v ->

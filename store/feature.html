@@ -13,6 +13,7 @@
     --ig: #3987e5;
     --yt: #d95926;
     --tt: #199e70;
+    --x: #c98500;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1024px; height: 500px; overflow: hidden; }
@@ -105,7 +106,7 @@
   .bar { flex: 1; display: flex; flex-direction: column-reverse; gap: 2px; opacity: .45; }
   .bar.sel { opacity: 1; }
   .bar span:last-child { border-radius: 4px 4px 0 0; }
-  .ig { background: var(--ig); } .yt { background: var(--yt); } .tt { background: var(--tt); }
+  .ig { background: var(--ig); } .yt { background: var(--yt); } .tt { background: var(--tt); } .x { background: var(--x); }
   .days { display: flex; gap: 9px; margin-top: 6px; }
   .days span { flex: 1; text-align: center; font-size: 11px; color: var(--muted); }
   .days span.sel { color: var(--text); font-weight: 700; }
@@ -154,15 +155,15 @@
     <div class="label">TODAY</div>
     <div class="hero">1h 12m</div>
     <div class="sub">164 swipes</div>
-    <!-- Stacked bars, oldest day first: Instagram (blue), YouTube (orange), TikTok (green) -->
+    <!-- Stacked bars, oldest day first: Instagram (blue), YouTube (orange), TikTok (green), X (amber) -->
     <div class="bars">
-      <div class="bar"><span class="ig" style="height:10px"></span><span class="yt" style="height:14px"></span><span class="tt" style="height:6px"></span></div>
-      <div class="bar"><span class="ig" style="height:18px"></span><span class="yt" style="height:22px"></span><span class="tt" style="height:12px"></span></div>
-      <div class="bar"><span class="ig" style="height:12px"></span><span class="yt" style="height:16px"></span><span class="tt" style="height:8px"></span></div>
-      <div class="bar"><span class="ig" style="height:20px"></span><span class="yt" style="height:26px"></span><span class="tt" style="height:14px"></span></div>
-      <div class="bar"><span class="ig" style="height:14px"></span><span class="yt" style="height:18px"></span><span class="tt" style="height:10px"></span></div>
-      <div class="bar"><span class="ig" style="height:9px"></span><span class="yt" style="height:12px"></span><span class="tt" style="height:6px"></span></div>
-      <div class="bar sel"><span class="ig" style="height:16px"></span><span class="yt" style="height:21px"></span><span class="tt" style="height:11px"></span></div>
+      <div class="bar"><span class="ig" style="height:8px"></span><span class="yt" style="height:11px"></span><span class="tt" style="height:5px"></span><span class="x" style="height:6px"></span></div>
+      <div class="bar"><span class="ig" style="height:14px"></span><span class="yt" style="height:17px"></span><span class="tt" style="height:9px"></span><span class="x" style="height:11px"></span></div>
+      <div class="bar"><span class="ig" style="height:10px"></span><span class="yt" style="height:12px"></span><span class="tt" style="height:6px"></span><span class="x" style="height:8px"></span></div>
+      <div class="bar"><span class="ig" style="height:15px"></span><span class="yt" style="height:19px"></span><span class="tt" style="height:10px"></span><span class="x" style="height:12px"></span></div>
+      <div class="bar"><span class="ig" style="height:11px"></span><span class="yt" style="height:14px"></span><span class="tt" style="height:8px"></span><span class="x" style="height:9px"></span></div>
+      <div class="bar"><span class="ig" style="height:7px"></span><span class="yt" style="height:9px"></span><span class="tt" style="height:5px"></span><span class="x" style="height:6px"></span></div>
+      <div class="bar sel"><span class="ig" style="height:13px"></span><span class="yt" style="height:16px"></span><span class="tt" style="height:8px"></span><span class="x" style="height:11px"></span></div>
     </div>
     <div class="days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span class="sel">S</span></div>
   </div>

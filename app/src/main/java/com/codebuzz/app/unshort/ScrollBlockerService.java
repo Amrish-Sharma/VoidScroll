@@ -30,6 +30,12 @@ public class ScrollBlockerService extends AccessibilityService {
     // closed with numActivities=0) -- what the user sees as YouTube crashing.
     private static final long BACK_ACTION_DELAY_MS = 400;
 
+    // Limits how often a stream of events from X / Chrome re-inspects the screen.
+    private static final long FEED_CHECK_THROTTLE_MS = 300;
+
+    // Never assumes a feed it can't see: a back-press is only fired for one that is on screen.
+    private final FeedDetector feedDetector = new FeedDetector(false);
+    private long lastFeedCheckUptimeMs = 0L;
     private TimeLimitManager timeLimitManager;
     private String tlCurrentPackage = null;
     private long lastActionUptimeMs = 0L;
@@ -91,11 +97,16 @@ public class ScrollBlockerService extends AccessibilityService {
         // blocking logic below keeps reacting to scroll/content events only.
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
 
+        // X and Chrome are used for far more than short-form video, so only their
+        // actual video feeds are blocked, never scrolling in general.
+        if (packageName.equals(FeedDetector.X) || packageName.equals(FeedDetector.CHROME)) {
+            blockFeedIfShown();
+            return;
+        }
+
         // Check common packages where short-form video content appears
-        if (!(packageName.equals("com.android.chrome")
-                || packageName.equals("com.google.android.youtube")
+        if (!(packageName.equals("com.google.android.youtube")
                 || packageName.equals("com.instagram.android")
-                || packageName.equals("com.twitter.android")
                 || packageName.contains("com.snapchat"))) {
             return;
         }
@@ -213,10 +224,6 @@ public class ScrollBlockerService extends AccessibilityService {
                 blockShorts(node);
                 return;
             }
-            if (packageName.equals("com.twitter.android") && t.contains("video")) {
-                blockXVideos(node);
-                return;
-            }
         }
 
         for (int i = 0; i < node.getChildCount(); i++) {
@@ -242,11 +249,18 @@ public class ScrollBlockerService extends AccessibilityService {
         }
     }
 
-    private void blockXVideos(AccessibilityNodeInfo node) {
-        if (node == null) return;
-        if (node.getText() != null && node.getText().toString().toLowerCase().contains("video")) {
-            scheduleBack("X Videos");
+    // Leaves the screen if it is showing a short-form feed (X's video viewer, or
+    // Reels / Shorts / X videos / TikTok opened in Chrome).
+    private void blockFeedIfShown() {
+        long now = SystemClock.uptimeMillis();
+        if (backActionScheduled
+                || now - lastActionUptimeMs < MIN_ACTION_INTERVAL_MS
+                || now - lastFeedCheckUptimeMs < FEED_CHECK_THROTTLE_MS) {
+            return;
         }
+        lastFeedCheckUptimeMs = now;
+        FeedDetector.Feed feed = feedDetector.detect(getRootInActiveWindow(), false);
+        if (feed != null) scheduleBack("short-form feed (" + feed.app + ")");
     }
 
     // Fires GLOBAL_ACTION_BACK after a short settle delay instead of immediately,

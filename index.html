@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unshort Privacy Policy</title>
+<meta name="description" content="Privacy policy for the Unshort Android app.">
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --text: #1a1a19;
+    --text-2: #52514e;
+    --border: #e4e3df;
+    --accent: #2a78d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f0e;
+      --surface: #1a1a19;
+      --text: #ffffff;
+      --text-2: #c3c2b7;
+      --border: #2c2c2a;
+      --accent: #6da7ec;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.2rem; margin: 40px 0 8px; }
+  h3 { font-size: 1rem; margin: 24px 0 4px; }
+  p, li { color: var(--text-2); }
+  strong { color: var(--text); }
+  ul { padding-left: 1.2em; }
+  li { margin: 4px 0; }
+  a { color: var(--accent); }
+  .meta { color: var(--text-2); margin: 0 0 32px; }
+  .summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 4px 20px;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .95rem; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text); font-weight: 600; }
+  td { color: var(--text-2); }
+  .table-wrap { overflow-x: auto; }
+  footer { margin-top: 48px; color: var(--text-2); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Unshort Privacy Policy</h1>
+  <p class="meta">Effective date: September 27, 2026</p>
+
+  <p>
+    This policy explains how the Unshort Android app ("Unshort", "the app", "we") handles
+    information. Unshort is developed by Amrish Sharma. It helps you notice and cut down on
+    short-form video scrolling (such as Instagram Reels, YouTube Shorts and TikTok) by either
+    blocking those feeds or tracking how much you swipe and how long you watch.
+  </p>
+
+  <div class="summary">
+    <h2 style="margin-top:16px">The short version</h2>
+    <ul>
+      <li><strong>Everything stays on your phone.</strong> Unshort has no internet permission and
+        cannot send data anywhere.</li>
+      <li><strong>We don't collect, sell or share personal data.</strong> There are no accounts,
+        ads, analytics or tracking SDKs.</li>
+      <li>The accessibility service reads what is on screen <strong>only in supported apps</strong>,
+        only to detect short-form video feeds, and <strong>nothing it reads is saved</strong>
+        except swipe counts and time totals.</li>
+    </ul>
+  </div>
+
+  <h2>1. Accessibility service</h2>
+  <p>
+    Unshort's core features rely on Android's AccessibilityService API. When you turn on the
+    Unshort accessibility service, the app can see the content of the screen in these apps only:
+    Instagram, YouTube, TikTok, X (Twitter), Chrome and Snapchat.
+  </p>
+  <p>It uses this access to:</p>
+  <ul>
+    <li><strong>Detect short-form video feeds</strong> (for example, recognising that the YouTube
+      Shorts player or Instagram Reels viewer is on screen).</li>
+    <li><strong>Block them</strong> in Block mode, by going back or stopping the scroll.</li>
+    <li><strong>Count swipes and time</strong> in Track mode, and show them in two small bubbles
+      on top of the feed.</li>
+  </ul>
+  <p>
+    Screen content is examined in memory at the moment it is shown and then discarded. Unshort
+    does <strong>not</strong> record, store or transmit what you watch, the text on screen, video
+    titles, usernames, messages or anything you type. The only results kept are the counts and
+    durations described in section 3.
+  </p>
+  <p>
+    You can turn the service off at any time in <em>Settings &rarr; Accessibility</em> on your
+    device. Blocking and tracking stop immediately.
+  </p>
+
+  <h2>2. Other permissions and device information</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>What</th><th>Why</th></tr>
+    <tr>
+      <td>List of installed apps</td>
+      <td>Shown in Settings so you can put apps into categories (Social, Games, Productivity,
+        Other) for time limits. Read on the device only.</td>
+    </tr>
+    <tr>
+      <td>Share-to-Unshort</td>
+      <td>When you share something from another app to Unshort, the app reads only
+        <strong>which app</strong> you shared from, to add it to your Social Media limits. The
+        shared content itself is ignored.</td>
+    </tr>
+    <tr>
+      <td>Notifications</td>
+      <td>Used for the ongoing Focus Session notification.</td>
+    </tr>
+    <tr>
+      <td>Drawing over other apps</td>
+      <td>Unshort shows its own swipe/time bubbles and blocking screen on top of other apps.
+        This only displays Unshort's content; it doesn't read anything.</td>
+    </tr>
+  </table>
+  </div>
+  <p>Unshort does not access your location, contacts, camera, microphone, photos or files.</p>
+
+  <h2>3. Information stored on your device</h2>
+  <p>To make its features work, Unshort saves the following in its private app storage on your
+    phone:</p>
+  <ul>
+    <li>Daily swipe counts and time spent in Instagram Reels, YouTube Shorts and TikTok, kept for
+      the <strong>last 30 days</strong> and then deleted automatically.</li>
+    <li>Daily usage time for apps you have put in a limited category, used to enforce your time
+      limits.</li>
+    <li>Your settings: Block or Track mode, app categories, time limits and whether a Focus
+      Session is active.</li>
+  </ul>
+  <p>
+    This data never leaves your device through Unshort, and other apps cannot read it. It is
+    deleted when you clear the app's data or uninstall the app.
+  </p>
+
+  <h3>Device backups</h3>
+  <p>
+    If you have Android backup turned on, Android may include Unshort's settings and statistics
+    in your device backup (for example, your Google account backup) so they can be restored on a
+    new phone. That backup is handled by Android and your backup provider under their own privacy
+    terms; Unshort does not send or receive it itself. You can turn backup off in your device
+    settings.
+  </p>
+
+  <h2>4. What we don't do</h2>
+  <ul>
+    <li>We don't collect personal information or send any data to servers. The app has no
+      internet access.</li>
+    <li>We don't sell, rent or share data with anyone.</li>
+    <li>We don't show ads or use analytics, crash reporting or other third-party SDKs.</li>
+    <li>We don't require an account or sign-in.</li>
+  </ul>
+
+  <h2>5. Your choices</h2>
+  <ul>
+    <li><strong>Stop tracking or blocking:</strong> turn off the Unshort accessibility service in
+      your device's Accessibility settings.</li>
+    <li><strong>Delete your data:</strong> go to <em>Settings &rarr; Apps &rarr; Unshort &rarr;
+      Storage &rarr; Clear data</em>, or uninstall the app.</li>
+    <li><strong>Switch modes:</strong> choose Block or Track in the app's Settings.</li>
+  </ul>
+
+  <h2>6. Children</h2>
+  <p>
+    Unshort is not directed at children under 13 and does not knowingly collect personal
+    information from anyone, including children.
+  </p>
+
+  <h2>7. Security</h2>
+  <p>
+    All data is kept in the app's private storage, protected by Android's app sandbox. Because
+    nothing is transmitted, there is no server copy of your data that could be exposed.
+  </p>
+
+  <h2>8. Changes to this policy</h2>
+  <p>
+    If Unshort's handling of information changes, this page will be updated and the effective
+    date above will change. Significant changes will also be noted in the app's release notes.
+  </p>
+
+  <h2>9. Contact</h2>
+  <p>
+    Questions about this policy or your data? Email
+    <a href="mailto:code_ovanta@proton.me">code_ovanta@proton.me</a>.
+  </p>
+
+  <footer>&copy; 2026 Unshort</footer>
+</main>
+</body>
+</html>

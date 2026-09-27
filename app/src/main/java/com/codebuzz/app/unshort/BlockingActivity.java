@@ -6,12 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class BlockingActivity extends AppCompatActivity {
@@ -37,6 +37,16 @@ public class BlockingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Consume Back so the block screen can't be dismissed. A callback rather than
+        // onKeyDown(KEYCODE_BACK): from targetSdk 36, back gestures no longer arrive
+        // as key events.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Intentionally empty.
+            }
+        });
         // Make full-screen and show over lock & turn screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
                 | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -74,14 +84,6 @@ public class BlockingActivity extends AppCompatActivity {
         handler.post(tickRunnable);
     }
 
-    // Consume back key to prevent dismissing overlay
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            return true; // consume
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 
     private void updateAddButtonState() {
         SharedPreferences prefs = getSharedPreferences("time_limits_prefs", Context.MODE_PRIVATE);

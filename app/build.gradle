@@ -4,13 +4,13 @@ plugins {
 
 android {
     namespace 'com.codebuzz.app.unshort'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.codebuzz.app.unshort"
         minSdk 31
-        targetSdk 35
-        versionCode 1
+        targetSdk 36
+        versionCode 3
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

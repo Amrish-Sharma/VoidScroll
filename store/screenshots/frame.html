@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0f0f0e;
+    --text: #ffffff;
+    --text-2: #c3c2b7;
+    --frame: #262624;
+    /* Raw captures are 1080x2400; shown 800px wide inside the frame. */
+    --scale: 0.7407;
+    --crop: 47px;           /* status bar (64px raw) trimmed off the top */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(700px 600px at 0% 100%, rgba(57,135,229,.20), transparent 70%),
+      radial-gradient(700px 600px at 100% 0%, rgba(217,89,38,.18), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    position: relative;
+  }
+  .head { position: absolute; left: 0; right: 0; top: 110px; text-align: center; padding: 0 60px; }
+  h1 { font-size: 84px; font-weight: 700; letter-spacing: -2px; line-height: 1.05; }
+  p { margin-top: 22px; font-size: 38px; color: var(--text-2); line-height: 1.25; }
+
+  .phone {
+    position: absolute; left: 128px; top: 470px;
+    width: 824px; height: 1600px;               /* runs off the bottom edge */
+    border: 12px solid var(--frame); border-bottom: none;
+    border-radius: 64px 64px 0 0;
+    background: #000; overflow: hidden;
+    box-shadow: 0 40px 90px rgba(0,0,0,.65);
+  }
+  .layer {
+    position: absolute; left: 0; top: calc(-1 * var(--crop));
+    width: 800px; height: 1778px;
+    background-size: 800px 1778px; background-repeat: no-repeat;
+  }
+  .blur { filter: blur(30px) saturate(.8) brightness(.8); transform: scale(1.08); }
+</style>
+</head>
+<body>
+  <div class="head"><h1 id="h"></h1><p id="s"></p></div>
+  <div class="phone" id="phone"></div>
+
+<script>
+  const SHOTS = {
+    dashboard: {
+      img: "raw_dashboard_top.png",
+      h: "See your scrolling<br>in numbers",
+      s: "Swipes and watch time for Reels, Shorts and TikTok"
+    },
+    bubbles: {
+      img: "raw_bubbles.png",
+      h: "Count every swipe<br>as it happens",
+      s: "Two small bubbles track swipes and time over the feed",
+      // Blur the third-party video; keep only Unshort's bubbles sharp.
+      // Circle centres/radius in raw-capture pixels.
+      sharp: [{ x: 120, y: 403, r: 88 }, { x: 120, y: 604, r: 88 }]
+    },
+    breakdown: {
+      img: "raw_breakdown.png",
+      h: "Know where<br>your time goes",
+      s: "A 7-day chart with a breakdown for every day"
+    },
+    privacy: {
+      img: "raw_disclosure.png",
+      h: "Private by design",
+      s: "No account, no ads, no internet access.<br>Your stats never leave your phone."
+    }
+  };
+
+  const shot = SHOTS[location.hash.slice(1)] || SHOTS.dashboard;
+  document.getElementById("h").innerHTML = shot.h;
+  document.getElementById("s").innerHTML = shot.s;
+
+  const phone = document.getElementById("phone");
+  const scale = 0.7407, crop = 47;
+  function layer(extraClass) {
+    const d = document.createElement("div");
+    d.className = "layer " + (extraClass || "");
+    d.style.backgroundImage = `url(${shot.img})`;
+    phone.appendChild(d);
+    return d;
+  }
+  if (shot.sharp) {
+    layer("blur");
+    for (const c of shot.sharp) {
+      const d = layer();
+      d.style.clipPath = `circle(${c.r * scale}px at ${c.x * scale}px ${c.y * scale}px)`;
+    }
+  } else {
+    layer();
+  }
+</script>
+</body>
+</html>

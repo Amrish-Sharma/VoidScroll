@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0f0f0e;
+    --surface: #1a1a19;
+    --border: #2c2c2a;
+    --text: #ffffff;
+    --text-2: #c3c2b7;
+    --muted: #8f8e86;
+    --ig: #3987e5;
+    --yt: #d95926;
+    --tt: #199e70;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(520px 380px at 8% 105%, rgba(57,135,229,.22), transparent 70%),
+      radial-gradient(460px 360px at 92% -10%, rgba(217,89,38,.20), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+    position: relative;
+  }
+
+  /* ---------- Brand block ---------- */
+  .brand { position: absolute; left: 64px; top: 92px; width: 470px; }
+  .brand-row { display: flex; align-items: center; gap: 22px; }
+  .icon {
+    width: 104px; height: 104px; border-radius: 28px;
+    background: #141413; border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  .name { font-size: 64px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+  .tagline {
+    margin-top: 34px; font-size: 38px; font-weight: 600; line-height: 1.18;
+    letter-spacing: -.5px;
+  }
+  .tagline span { color: var(--text-2); font-weight: 500; }
+  .chips { margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip {
+    font-size: 18px; color: var(--text-2);
+    padding: 7px 16px; border-radius: 999px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--border);
+  }
+
+  /* ---------- Phone ---------- */
+  .phone {
+    position: absolute; left: 700px; top: 48px;
+    width: 250px; height: 500px; border-radius: 38px;
+    background: #050505; border: 8px solid #262624;
+    box-shadow: 0 30px 60px rgba(0,0,0,.6);
+    overflow: hidden;
+  }
+  .screen {
+    position: absolute; inset: 0; border-radius: 30px; overflow: hidden;
+    /* An abstract "video" frame */
+    background:
+      radial-gradient(160px 200px at 70% 30%, rgba(233,150,90,.85), transparent 70%),
+      radial-gradient(180px 220px at 25% 70%, rgba(80,70,160,.9), transparent 70%),
+      radial-gradient(140px 140px at 80% 85%, rgba(25,158,112,.55), transparent 70%),
+      linear-gradient(180deg, #2a2335, #16131c);
+  }
+  .screen::after { /* soft vignette like a video player */
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.25), transparent 30%, transparent 65%, rgba(0,0,0,.55));
+  }
+  .bubble {
+    position: absolute; left: 14px; z-index: 2;
+    width: 70px; height: 70px; border-radius: 50%;
+    background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.35);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+  .bubble b { font-size: 20px; line-height: 1.1; }
+  .bubble small { font-size: 11px; color: rgba(255,255,255,.8); }
+  .b1 { top: 56px; } .b2 { top: 134px; }
+  .actions { position: absolute; right: 14px; bottom: 96px; z-index: 2; display: flex; flex-direction: column; gap: 18px; }
+  .actions i { display: block; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.28); }
+  .caption { position: absolute; left: 16px; bottom: 60px; z-index: 2; width: 150px; }
+  .caption i { display: block; height: 9px; border-radius: 5px; background: rgba(255,255,255,.55); margin-top: 8px; }
+  .caption i:first-child { width: 90px; background: rgba(255,255,255,.85); }
+  .swipe {
+    position: absolute; left: 50%; top: 250px; z-index: 2; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: .85;
+  }
+
+  /* ---------- Dashboard card ---------- */
+  .card {
+    position: absolute; left: 548px; top: 280px; z-index: 3;
+    width: 232px; padding: 18px 18px 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    box-shadow: 0 20px 44px rgba(0,0,0,.6);
+  }
+  .card .label { font-size: 12px; letter-spacing: 1.5px; font-weight: 700; color: var(--muted); }
+  .card .hero { font-size: 32px; font-weight: 700; margin-top: 2px; letter-spacing: -.5px; }
+  .card .sub { font-size: 13px; color: var(--text-2); margin-top: -2px; }
+  .bars {
+    margin-top: 12px; height: 62px; display: flex; align-items: flex-end; gap: 9px;
+    border-bottom: 1px solid #383835;
+  }
+  .bar { flex: 1; display: flex; flex-direction: column-reverse; gap: 2px; opacity: .45; }
+  .bar.sel { opacity: 1; }
+  .bar span:last-child { border-radius: 4px 4px 0 0; }
+  .ig { background: var(--ig); } .yt { background: var(--yt); } .tt { background: var(--tt); }
+  .days { display: flex; gap: 9px; margin-top: 6px; }
+  .days span { flex: 1; text-align: center; font-size: 11px; color: var(--muted); }
+  .days span.sel { color: var(--text); font-weight: 700; }
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="brand-row">
+      <!-- App icon: same geometry as res/drawable/ic_launcher_foreground.xml -->
+      <svg class="icon" viewBox="14 14 80 80" aria-hidden="true">
+        <g transform="translate(-8 0) rotate(-12 54 54)">
+          <path fill="#3987E5" d="M46,31h16a5,5 0,0 1,5 5v36a5,5 0,0 1,-5 5h-16a5,5 0,0 1,-5 -5v-36a5,5 0,0 1,5 -5z"/>
+        </g>
+        <g transform="translate(8 0) rotate(12 54 54)">
+          <path fill="#D95926" d="M46,31h16a5,5 0,0 1,5 5v36a5,5 0,0 1,-5 5h-16a5,5 0,0 1,-5 -5v-36a5,5 0,0 1,5 -5z"/>
+        </g>
+        <path fill="#FFFFFF" stroke="#141413" stroke-width="2.5" d="M46,31h16a5,5 0,0 1,5 5v36a5,5 0,0 1,-5 5h-16a5,5 0,0 1,-5 -5v-36a5,5 0,0 1,5 -5z"/>
+        <path fill="#141413" d="M50.75,47a2.25,2.25 0,0 1,2.25 2.25v9.5a2.25,2.25 0,0 1,-4.5 0v-9.5a2.25,2.25 0,0 1,2.25 -2.25zM57.25,47a2.25,2.25 0,0 1,2.25 2.25v9.5a2.25,2.25 0,0 1,-4.5 0v-9.5a2.25,2.25 0,0 1,2.25 -2.25z"/>
+      </svg>
+      <div class="name">Unshort</div>
+    </div>
+    <div class="tagline">See every swipe.<br><span>Take your time back.</span></div>
+    <div class="chips">
+      <span class="chip">Swipe counter</span>
+      <span class="chip">Time tracker</span>
+      <span class="chip">Feed blocker</span>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="screen"></div>
+    <div class="bubble b1"><b>37</b><small>swipes</small></div>
+    <div class="bubble b2"><b>12:48</b><small>scrolling</small></div>
+    <div class="swipe" aria-hidden="true">
+      <svg width="34" height="40" viewBox="0 0 34 40" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 16 L17 5 L29 16" opacity=".95"/>
+        <path d="M5 30 L17 19 L29 30" opacity=".5"/>
+      </svg>
+    </div>
+    <div class="actions"><i></i><i></i><i></i></div>
+    <div class="caption"><i></i><i></i></div>
+  </div>
+
+  <div class="card">
+    <div class="label">TODAY</div>
+    <div class="hero">1h 12m</div>
+    <div class="sub">164 swipes</div>
+    <!-- Stacked bars, oldest day first: Instagram (blue), YouTube (orange), TikTok (green) -->
+    <div class="bars">
+      <div class="bar"><span class="ig" style="height:10px"></span><span class="yt" style="height:14px"></span><span class="tt" style="height:6px"></span></div>
+      <div class="bar"><span class="ig" style="height:18px"></span><span class="yt" style="height:22px"></span><span class="tt" style="height:12px"></span></div>
+      <div class="bar"><span class="ig" style="height:12px"></span><span class="yt" style="height:16px"></span><span class="tt" style="height:8px"></span></div>
+      <div class="bar"><span class="ig" style="height:20px"></span><span class="yt" style="height:26px"></span><span class="tt" style="height:14px"></span></div>
+      <div class="bar"><span class="ig" style="height:14px"></span><span class="yt" style="height:18px"></span><span class="tt" style="height:10px"></span></div>
+      <div class="bar"><span class="ig" style="height:9px"></span><span class="yt" style="height:12px"></span><span class="tt" style="height:6px"></span></div>
+      <div class="bar sel"><span class="ig" style="height:16px"></span><span class="yt" style="height:21px"></span><span class="tt" style="height:11px"></span></div>
+    </div>
+    <div class="days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span class="sel">S</span></div>
+  </div>
+
+</body>
+</html>

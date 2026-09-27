@@ -1,8 +1,6 @@
 package com.codebuzz.app.unshort;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.provider.Settings;
 import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,10 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         Button enableServiceButton = findViewById(R.id.enableServiceButton);
-        enableServiceButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivity(intent);
-        });
+        enableServiceButton.setOnClickListener(v -> AccessibilityDisclosure.showThenOpenSettings(this));
 
         RadioGroup modeGroup = findViewById(R.id.shortFormModeGroup);
         modeGroup.check(ShortFormMode.TRACK.equals(ShortFormMode.get(this))

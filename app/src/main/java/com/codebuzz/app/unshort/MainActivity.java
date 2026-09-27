@@ -1,7 +1,9 @@
 package com.codebuzz.app.unshort;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -37,6 +41,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int[] APP_LABELS = {
             R.string.app_label_instagram, R.string.app_label_youtube, R.string.app_label_tiktok};
     private static final int[] APP_ROWS = {R.id.rowInstagram, R.id.rowYoutube, R.id.rowTiktok};
+
+    // Asked for when a Focus Session starts; once granted, re-post the session's
+    // notification, which was dropped while the permission was missing.
+    private final ActivityResultLauncher<String> notificationPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                TimeLimitManager tlm = TimeLimitManager.getInstance(this);
+                if (granted && tlm.isFocusSessionActive()) tlm.startFocusSession();
+            });
 
     private ScrollStats stats;
     private int[] appColors;
@@ -88,11 +100,13 @@ public class MainActivity extends AppCompatActivity {
             boolean active = tlm.isFocusSessionActive();
             if (active) {
                 tlm.endFocusSession();
-                stopService(new Intent(this, FocusSessionService.class));
                 Toast.makeText(this, "Focus Session ended", Toast.LENGTH_SHORT).show();
             } else {
                 tlm.startFocusSession();
-                startForegroundService(new Intent(this, FocusSessionService.class));
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS);
+                }
                 Toast.makeText(this, "Focus Session started! Deep Work Mode ON", Toast.LENGTH_SHORT).show();
             }
             updateFocusSessionButton(focusSessionButton, !active);
@@ -120,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             title.setText(R.string.dash_status_service_title);
             body.setText(R.string.dash_status_service_body);
             action.setText(R.string.dash_status_service_action);
-            action.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+            action.setOnClickListener(v -> AccessibilityDisclosure.showThenOpenSettings(this));
             card.setVisibility(View.VISIBLE);
         } else if (!ShortFormMode.TRACK.equals(ShortFormMode.get(this))) {
             title.setText(R.string.dash_status_block_title);

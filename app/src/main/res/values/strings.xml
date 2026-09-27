@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Unshort</string>
-    <string name="accessibility_service_description">Block the app</string>
+    <string name="accessibility_service_description">Unshort reads the screen only in Instagram, YouTube, TikTok, X, Chrome and Snapchat, to detect short-form video feeds (Reels, Shorts, TikTok). It uses this to block those feeds, or to count your swipes and time spent, depending on the mode you choose. Screen content is never stored or shared, and nothing leaves your device.</string>
+    <string name="a11y_disclosure_title">Allow Unshort to read your screen?</string>
+    <string name="a11y_disclosure_message">Unshort uses Android\'s Accessibility Service to work.\n\nWhat it reads: the content shown on screen, but only while you are in Instagram, YouTube, TikTok, X, Chrome or Snapchat.\n\nWhy: to recognise short-form video feeds (Reels, Shorts, TikTok) so it can block them, or count your swipes and time spent, depending on the mode you choose.\n\nWhat it keeps: only swipe counts and time totals, stored on this device. Screen content itself is never saved, and Unshort has no internet access, so nothing is shared or sent anywhere.\n\nYou can turn this off at any time in Accessibility settings.</string>
+    <string name="a11y_disclosure_agree">Agree</string>
+    <string name="a11y_disclosure_decline">No thanks</string>
+    <string name="a11y_disclosure_policy">Privacy policy</string>
     <string name="focusguard_block_title">Time\'s up for today!</string>
     <string name="focusguard_block_message">You\'ve reached your time limit for this app.</string>
     <string name="add_5_min_button">Add 5 min (%d left)</string>

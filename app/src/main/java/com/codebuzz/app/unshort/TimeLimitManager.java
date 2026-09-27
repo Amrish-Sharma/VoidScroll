@@ -55,6 +55,7 @@ public class TimeLimitManager {
     private final HashMap<String, Runnable> scheduledRunnables = new HashMap<>();
 
     private static final String CHANNEL_ID = "focusguard_warnings";
+    private static final int FOCUS_SESSION_NOTIF_ID = 1001;
 
     // Preset categories and their default limits (ms)
     public static final String CATEGORY_SOCIAL = "Social Media";
@@ -300,9 +301,23 @@ public class TimeLimitManager {
     }
     public void startFocusSession() {
         prefs.edit().putBoolean(PREF_FOCUS_SESSION, true).apply();
+        // A plain ongoing notification rather than a foreground service: the session
+        // is enforced from prefs by the accessibility service, so nothing needs to
+        // be kept running here.
+        Notification n = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle("FocusGuard: Deep Work Mode")
+                .setContentText("Focus Session is active. Distractions are blocked.")
+                .setSmallIcon(android.R.drawable.ic_lock_lock)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(FOCUS_SESSION_NOTIF_ID, n);
     }
     public void endFocusSession() {
         prefs.edit().putBoolean(PREF_FOCUS_SESSION, false).apply();
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancel(FOCUS_SESSION_NOTIF_ID);
     }
 
     // Dummy implementation for per-app limit (returns 0 = not set)

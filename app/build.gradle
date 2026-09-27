@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.cb.voidscroll'
+    namespace 'com.codebuzz.app.unshort'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.cb.voidscroll"
+        applicationId "com.codebuzz.app.unshort"
         minSdk 31
         targetSdk 35
         versionCode 1

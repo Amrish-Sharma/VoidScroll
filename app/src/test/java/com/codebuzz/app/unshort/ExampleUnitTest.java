@@ -1,4 +1,4 @@
-package com.cb.voidscroll;
+package com.codebuzz.app.unshort;
 
 import org.junit.Test;
 

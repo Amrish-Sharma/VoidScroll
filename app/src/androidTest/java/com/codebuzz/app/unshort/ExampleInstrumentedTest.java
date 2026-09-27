@@ -1,4 +1,4 @@
-package com.cb.voidscroll;
+package com.codebuzz.app.unshort;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.cb.voidscroll", appContext.getPackageName());
+        assertEquals("com.codebuzz.app.unshort", appContext.getPackageName());
     }
 }

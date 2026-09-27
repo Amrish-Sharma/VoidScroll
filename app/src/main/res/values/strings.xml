@@ -1,4 +1,44 @@
 <resources>
-    <string name="app_name">VoidScroll</string>
+    <string name="app_name">Unshort</string>
     <string name="accessibility_service_description">Block the app</string>
+    <string name="focusguard_block_title">Time\'s up for today!</string>
+    <string name="focusguard_block_message">You\'ve reached your time limit for this app.</string>
+    <string name="add_5_min_button">Add 5 min (%d left)</string>
+    <string name="reset_countdown_format">%1$02dh %2$02dm %3$02ds until reset</string>
+    <string name="scroll_bubble_count_label">swipes</string>
+    <string name="scroll_bubble_time_label">scrolling</string>
+    <string name="short_form_mode_title">Reels, Shorts &amp; TikTok</string>
+    <string name="short_form_mode_block">Block them</string>
+    <string name="short_form_mode_track">Allow, but track swipes &amp; time</string>
+
+    <!-- Dashboard -->
+    <string name="dash_subtitle">Your short-form scrolling, in numbers</string>
+    <string name="dash_settings">Settings</string>
+    <string name="dash_today">TODAY</string>
+    <string name="dash_swipes_label">swipes</string>
+    <string name="dash_time_label">watched</string>
+    <string name="dash_week_title">Last 7 days</string>
+    <string name="dash_metric_minutes">Minutes</string>
+    <string name="dash_metric_swipes">Swipes</string>
+    <string name="dash_chart_hint">Tap a day to see its breakdown</string>
+    <string name="dash_breakdown_today">Today by app</string>
+    <string name="dash_breakdown_yesterday">Yesterday by app</string>
+    <string name="dash_breakdown_day">%1$s by app</string>
+    <string name="dash_app_value">%1$d swipes · %2$s</string>
+    <string name="dash_compare_more">%1$s more than yesterday</string>
+    <string name="dash_compare_less">%1$s less than yesterday</string>
+    <string name="dash_compare_same">Same as yesterday</string>
+    <string name="dash_compare_none">No Reels, Shorts or TikTok yet today</string>
+    <string name="dash_pace">About %1$s per video on average</string>
+    <string name="dash_focus_start">Start Focus Session</string>
+    <string name="dash_focus_end">End Focus Session</string>
+    <string name="dash_status_service_title">Turn on tracking</string>
+    <string name="dash_status_service_body">Unshort needs its accessibility service to count your swipes and time.</string>
+    <string name="dash_status_service_action">Open accessibility settings</string>
+    <string name="dash_status_block_title">Blocking mode is on</string>
+    <string name="dash_status_block_body">Reels, Shorts and TikTok are blocked, so no new scrolling is tracked. Switch to Track to see your numbers here.</string>
+    <string name="dash_status_block_action">Switch to Track</string>
+    <string name="app_label_instagram">Instagram Reels</string>
+    <string name="app_label_youtube">YouTube Shorts</string>
+    <string name="app_label_tiktok">TikTok</string>
 </resources>

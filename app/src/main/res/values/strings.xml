@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Unshort</string>
-    <string name="accessibility_service_description">Unshort reads the screen only in Instagram, YouTube, TikTok, X, Chrome and Snapchat, to detect short-form video feeds (Reels, Shorts, TikTok). It uses this to block those feeds, or to count your swipes and time spent, depending on the mode you choose. Screen content is never stored or shared, and nothing leaves your device.</string>
+    <string name="accessibility_service_description">Unshort reads the screen only in Instagram, YouTube, TikTok, X, Chrome and Snapchat, to detect short-form video feeds (Reels, Shorts, TikTok and X videos, in their apps or in Chrome). It uses this to block those feeds, or to count your swipes and time spent, depending on the mode you choose. Screen content is never stored or shared, and nothing leaves your device.</string>
     <string name="a11y_disclosure_title">Allow Unshort to read your screen?</string>
-    <string name="a11y_disclosure_message">Unshort uses Android\'s Accessibility Service to work.\n\nWhat it reads: the content shown on screen, but only while you are in Instagram, YouTube, TikTok, X, Chrome or Snapchat.\n\nWhy: to recognise short-form video feeds (Reels, Shorts, TikTok) so it can block them, or count your swipes and time spent, depending on the mode you choose.\n\nWhat it keeps: only swipe counts and time totals, stored on this device. Screen content itself is never saved, and Unshort has no internet access, so nothing is shared or sent anywhere.\n\nYou can turn this off at any time in Accessibility settings.</string>
+    <string name="a11y_disclosure_message">Unshort uses Android\'s Accessibility Service to work.\n\nWhat it reads: the content shown on screen, but only while you are in Instagram, YouTube, TikTok, X, Chrome or Snapchat.\n\nWhy: to recognise short-form video feeds (Reels, Shorts, TikTok and X videos, in their apps or in Chrome) so it can block them, or count your swipes and time spent, depending on the mode you choose.\n\nWhat it keeps: only swipe counts and time totals, stored on this device. Screen content itself is never saved, and Unshort has no internet access, so nothing is shared or sent anywhere.\n\nYou can turn this off at any time in Accessibility settings.</string>
     <string name="a11y_disclosure_agree">Agree</string>
     <string name="a11y_disclosure_decline">No thanks</string>
     <string name="a11y_disclosure_policy">Privacy policy</string>
@@ -12,7 +12,7 @@
     <string name="reset_countdown_format">%1$02dh %2$02dm %3$02ds until reset</string>
     <string name="scroll_bubble_count_label">swipes</string>
     <string name="scroll_bubble_time_label">scrolling</string>
-    <string name="short_form_mode_title">Reels, Shorts &amp; TikTok</string>
+    <string name="short_form_mode_title">Reels, Shorts, TikTok &amp; X videos</string>
     <string name="short_form_mode_block">Block them</string>
     <string name="short_form_mode_track">Allow, but track swipes &amp; time</string>
 
@@ -33,17 +33,26 @@
     <string name="dash_compare_more">%1$s more than yesterday</string>
     <string name="dash_compare_less">%1$s less than yesterday</string>
     <string name="dash_compare_same">Same as yesterday</string>
-    <string name="dash_compare_none">No Reels, Shorts or TikTok yet today</string>
+    <string name="dash_compare_none">No Reels, Shorts, TikTok or X videos yet today</string>
     <string name="dash_pace">About %1$s per video on average</string>
+    <string name="dash_limit_title">Scroll limit: %1$d min</string>
+    <string name="dash_limit_body">The bubbles stay green while a scrolling session is within this, and turn red once it runs over. Drag them anywhere on screen.</string>
+    <string name="dash_limit_change">Change</string>
+    <string name="dash_limit_dialog_title">Scroll limit</string>
+    <string name="dash_limit_dialog_hint">Minutes per session</string>
+    <string name="dash_limit_save">Save</string>
+    <string name="dash_limit_cancel">Cancel</string>
+    <string name="dash_limit_invalid">Enter a number of minutes from %1$d to %2$d</string>
     <string name="dash_focus_start">Start Focus Session</string>
     <string name="dash_focus_end">End Focus Session</string>
     <string name="dash_status_service_title">Turn on tracking</string>
     <string name="dash_status_service_body">Unshort needs its accessibility service to count your swipes and time.</string>
     <string name="dash_status_service_action">Open accessibility settings</string>
     <string name="dash_status_block_title">Blocking mode is on</string>
-    <string name="dash_status_block_body">Reels, Shorts and TikTok are blocked, so no new scrolling is tracked. Switch to Track to see your numbers here.</string>
+    <string name="dash_status_block_body">Reels, Shorts, TikTok and X videos are blocked, so no new scrolling is tracked. Switch to Track to see your numbers here.</string>
     <string name="dash_status_block_action">Switch to Track</string>
     <string name="app_label_instagram">Instagram Reels</string>
     <string name="app_label_youtube">YouTube Shorts</string>
     <string name="app_label_tiktok">TikTok</string>
+    <string name="app_label_x">X Videos</string>
 </resources>

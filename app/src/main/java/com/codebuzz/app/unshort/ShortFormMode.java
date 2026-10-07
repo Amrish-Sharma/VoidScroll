@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 /**
  * What the accessibility service does with short-form video feeds (Reels,
- * Shorts, TikTok): either block them outright, or let the user scroll while
+ * Shorts, TikTok, X videos): either block them outright, or let the user scroll while
  * tracking swipes and time with on-screen bubbles.
  */
 final class ShortFormMode {

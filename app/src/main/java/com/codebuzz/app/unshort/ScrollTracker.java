@@ -1,6 +1,8 @@
 package com.codebuzz.app.unshort;
 
 import android.accessibilityservice.AccessibilityService;
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -10,21 +12,22 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.TextView;
 
-import java.util.List;
 import java.util.Locale;
 
 /**
  * Tracks mindless scrolling in short-form video feeds (Instagram Reels, YouTube
- * Shorts, TikTok). While the user is in one of those feeds, two translucent
- * bubbles are shown on top of it: one with the number of swipes made and one
- * with the time spent in the feed. Totals are also recorded in
- * {@link ScrollStats} for the dashboard.
+ * Shorts, TikTok, X videos, and their web versions in Chrome). While the user is
+ * in one of those feeds, two translucent bubbles are shown on top of it: one
+ * with the number of swipes made and one with the time spent in the feed. They
+ * are green until the session passes the {@link ScrollLimit}, then red.
+ * Totals are also recorded in {@link ScrollStats} for the dashboard.
  */
 class ScrollTracker {
 
@@ -46,46 +49,31 @@ class ScrollTracker {
     // after longer the feed may have been rebuilt and positions start over.
     private static final long POSITION_FORGET_MS = 3_000;
 
-    // A page must fill at least this much of the feed to count as landed on,
-    // so a swipe that is let go halfway and bounces back isn't counted.
-    private static final float SETTLED_FRACTION = 0.8f;
-
     // Limits how often a stream of accessibility events re-inspects the screen.
     private static final long EVAL_THROTTLE_MS = 300;
-
-    // TikTok is a short-form feed as a whole.
-    private static final String[] TIKTOK_PACKAGES = {
-            "com.zhiliaoapp.musically",
-            "com.ss.android.ugc.trill",
-    };
-
-    // Views that are only on screen while the Reels / Shorts player is showing.
-    private static final String[] FEED_VIEW_IDS = {
-            "com.instagram.android:id/clips_viewer_view_pager",
-            "com.google.android.youtube:id/reel_recycler",
-            "com.google.android.youtube:id/reel_player_page_container",
-    };
-
-    // Paged lists whose pages report their row index. In these, a swipe is
-    // counted when a different page lands on screen: YouTube Shorts doesn't send
-    // TYPE_VIEW_SCROLLED when moving between videos, so scroll events miss swipes.
-    private static final String[] PAGED_FEED_IDS = {
-            "com.instagram.android:id/clips_viewer_view_pager",
-            "com.google.android.youtube:id/reel_recycler",
-    };
 
     private final AccessibilityService service;
     private final WindowManager windowManager;
     private final ScrollStats stats;
+    private final FeedDetector detector = new FeedDetector(true);
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable tick = this::onTick;
 
+    private static final String KEY_BUBBLE_X = "scroll_bubble_x";
+    private static final String KEY_BUBBLE_Y = "scroll_bubble_y";
+
     private View overlay;
+    private WindowManager.LayoutParams overlayParams;
+    private View scrollCountBubble;
+    private View timeBubble;
     private TextView scrollCountText;
     private TextView timeText;
+    // Whether the bubbles currently show the over-limit color; null until first drawn.
+    private Boolean shownOverLimit = null;
 
     private boolean inFeed = false;
-    private String feedPackage = null;
+    // Dashboard app (ScrollStats.APPS) of the current or last feed.
+    private String feedApp = null;
     private boolean hasSession = false;
     private int scrollCount = 0;
     private long feedTimeMs = 0L;
@@ -94,10 +82,10 @@ class ScrollTracker {
     private long lastScrollEventUptimeMs = 0L;
     private long lastEvalUptimeMs = 0L;
 
-    // Row of the page last seen filling the feed, or -1 if unknown.
-    private int lastRow = -1;
-    // Whether the current feed reports rows; if not, scroll events are counted.
-    private boolean feedReportsRows = false;
+    // Key of the page last seen filling the feed, or null if unknown.
+    private String lastPageKey = null;
+    // Whether the current feed identifies its pages; if not, scroll events are counted.
+    private boolean feedReportsPages = false;
 
     ScrollTracker(AccessibilityService service) {
         this.service = service;
@@ -106,7 +94,7 @@ class ScrollTracker {
     }
 
     static boolean isTrackedPackage(String packageName) {
-        return ScrollStats.appFor(packageName) != null;
+        return FeedDetector.isWatchedPackage(packageName);
     }
 
     void onAccessibilityEvent(AccessibilityEvent event) {
@@ -118,7 +106,7 @@ class ScrollTracker {
             evaluate();
         }
 
-        if (inFeed && !feedReportsRows && type == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+        if (inFeed && !feedReportsPages && type == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             if (now - lastScrollEventUptimeMs >= SCROLL_GAP_MS) {
                 countSwipe();
             }
@@ -137,95 +125,40 @@ class ScrollTracker {
     private void evaluate() {
         lastEvalUptimeMs = SystemClock.uptimeMillis();
         AccessibilityNodeInfo root = service.getRootInActiveWindow();
-        String pkg = root != null && root.getPackageName() != null
-                ? root.getPackageName().toString() : null;
-        boolean nowInFeed = root != null && isFeedScreen(root, pkg);
+        FeedDetector.Feed feed = detector.detect(root, inFeed);
 
-        if (!nowInFeed) {
+        if (feed == null) {
             if (inFeed) leaveFeed();
             return;
         }
 
         if (!inFeed) {
-            enterFeed(pkg);
-        } else if (!pkg.equals(feedPackage)) {
-            // Switched straight from one feed app to another.
+            enterFeed(feed.app);
+        } else if (!feed.app.equals(feedApp)) {
+            // Switched straight from one feed to another.
             accumulateTime();
-            feedPackage = pkg;
-            lastRow = -1;
-            feedReportsRows = false;
+            feedApp = feed.app;
+            lastPageKey = null;
+            feedReportsPages = false;
         }
-        checkPage(root, pkg);
+        checkPage(feed.pageKey);
     }
 
-    private boolean isFeedScreen(AccessibilityNodeInfo root, String pkg) {
-        if (pkg == null) return false;
-
-        for (String p : TIKTOK_PACKAGES) {
-            if (p.equals(pkg)) return true;
-        }
-
-        for (String id : FEED_VIEW_IDS) {
-            if (!id.startsWith(pkg + ":")) continue;
-            List<AccessibilityNodeInfo> nodes = root.findAccessibilityNodeInfosByViewId(id);
-            for (AccessibilityNodeInfo n : nodes) {
-                if (n.isVisibleToUser()) return true;
-            }
-        }
-        return false;
-    }
-
-    private void checkPage(AccessibilityNodeInfo root, String pkg) {
-        AccessibilityNodeInfo feed = findVisible(root, pkg, PAGED_FEED_IDS);
-        if (feed == null) return;
-
-        Rect feedBounds = new Rect();
-        feed.getBoundsInScreen(feedBounds);
-        if (feedBounds.height() <= 0) return;
-
-        // The page taking up most of the feed is the one being watched.
-        AccessibilityNodeInfo page = null;
-        int pageHeight = 0;
-        Rect r = new Rect();
-        for (int i = 0; i < feed.getChildCount(); i++) {
-            AccessibilityNodeInfo child = feed.getChild(i);
-            if (child == null) continue;
-            child.getBoundsInScreen(r);
-            if (!r.intersect(feedBounds)) continue;
-            if (r.height() > pageHeight) {
-                pageHeight = r.height();
-                page = child;
-            }
-        }
-        if (page == null || pageHeight < feedBounds.height() * SETTLED_FRACTION) return;
-
-        AccessibilityNodeInfo.CollectionItemInfo item = page.getCollectionItemInfo();
-        if (item == null) return;
-
-        feedReportsRows = true;
-        int row = item.getRowIndex();
-        if (row != lastRow) Log.d(TAG, "Page " + lastRow + " -> " + row);
-        if (lastRow >= 0 && row != lastRow) countSwipe();
-        lastRow = row;
-    }
-
-    private static AccessibilityNodeInfo findVisible(AccessibilityNodeInfo root, String pkg, String[] ids) {
-        for (String id : ids) {
-            if (!id.startsWith(pkg + ":")) continue;
-            for (AccessibilityNodeInfo n : root.findAccessibilityNodeInfosByViewId(id)) {
-                if (n.isVisibleToUser()) return n;
-            }
-        }
-        return null;
+    private void checkPage(String pageKey) {
+        if (pageKey == null) return;
+        feedReportsPages = true;
+        if (!pageKey.equals(lastPageKey)) Log.d(TAG, "Page " + lastPageKey + " -> " + pageKey);
+        if (lastPageKey != null && !pageKey.equals(lastPageKey)) countSwipe();
+        lastPageKey = pageKey;
     }
 
     private void countSwipe() {
         scrollCount++;
-        stats.addSwipe(feedPackage);
+        stats.addSwipe(feedApp);
         render();
     }
 
-    private void enterFeed(String pkg) {
+    private void enterFeed(String app) {
         long now = SystemClock.uptimeMillis();
         long away = now - leftFeedUptimeMs;
         boolean newSession = !hasSession || away > SESSION_RESET_MS;
@@ -234,15 +167,15 @@ class ScrollTracker {
             feedTimeMs = 0L;
             hasSession = true;
         }
-        if (newSession || away > POSITION_FORGET_MS || !pkg.equals(feedPackage)) {
-            lastRow = -1;
-            feedReportsRows = false;
+        if (newSession || away > POSITION_FORGET_MS || !app.equals(feedApp)) {
+            lastPageKey = null;
+            feedReportsPages = false;
         }
         inFeed = true;
-        feedPackage = pkg;
+        feedApp = app;
         lastTickUptimeMs = now;
         lastScrollEventUptimeMs = 0L;
-        Log.d(TAG, "Entered short-form feed in " + pkg + (newSession ? " (new session)" : " (resumed)"));
+        Log.d(TAG, "Entered short-form feed: " + app + (newSession ? " (new session)" : " (resumed)"));
 
         showOverlay();
         render();
@@ -276,13 +209,22 @@ class ScrollTracker {
         long delta = now - lastTickUptimeMs;
         lastTickUptimeMs = now;
         feedTimeMs += delta;
-        stats.addTime(feedPackage, delta);
+        stats.addTime(feedApp, delta);
     }
 
     private void render() {
         if (overlay == null) return;
         scrollCountText.setText(String.valueOf(scrollCount));
         timeText.setText(formatTime(feedTimeMs));
+
+        // Green while the session is within the scroll limit, red once it is past it.
+        boolean overLimit = feedTimeMs > ScrollLimit.getMs(service);
+        if (shownOverLimit == null || shownOverLimit != overLimit) {
+            int background = overLimit ? R.drawable.bg_scroll_bubble_over : R.drawable.bg_scroll_bubble;
+            scrollCountBubble.setBackgroundResource(background);
+            timeBubble.setBackgroundResource(background);
+            shownOverLimit = overLimit;
+        }
     }
 
     static String formatTime(long ms) {
@@ -300,18 +242,23 @@ class ScrollTracker {
             overlay = LayoutInflater.from(service).inflate(R.layout.overlay_scroll_bubbles, null);
             scrollCountText = overlay.findViewById(R.id.scrollCountText);
             timeText = overlay.findViewById(R.id.scrollTimeText);
+            scrollCountBubble = overlay.findViewById(R.id.scrollCountBubble);
+            timeBubble = overlay.findViewById(R.id.scrollTimeBubble);
+            shownOverLimit = null;
 
+            SharedPreferences prefs = ShortFormMode.prefs(service);
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                    // Purely informational: never steal touches or focus from the feed.
+                    // Only the bubbles themselves take touches (to be dragged out of
+                    // the way); everything around them still reaches the feed.
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT);
             lp.gravity = Gravity.TOP | Gravity.START;
-            lp.x = dp(12);
-            lp.y = dp(120);
+            lp.x = prefs.getInt(KEY_BUBBLE_X, dp(12));
+            lp.y = prefs.getInt(KEY_BUBBLE_Y, dp(120));
             try {
                 windowManager.addView(overlay, lp);
             } catch (Exception e) {
@@ -319,8 +266,57 @@ class ScrollTracker {
                 overlay = null;
                 return;
             }
+            overlayParams = lp;
+            enableDragging();
         }
         overlay.setVisibility(View.VISIBLE);
+    }
+
+    // Lets the user drag the bubbles anywhere on screen; the spot is remembered.
+    @SuppressLint("ClickableViewAccessibility")
+    private void enableDragging() {
+        overlay.setOnTouchListener(new View.OnTouchListener() {
+            private int startX, startY;
+            private float downRawX, downRawY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                WindowManager.LayoutParams lp = overlayParams;
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startX = lp.x;
+                        startY = lp.y;
+                        downRawX = event.getRawX();
+                        downRawY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        Rect screen = windowManager.getCurrentWindowMetrics().getBounds();
+                        lp.x = clamp(startX + (int) (event.getRawX() - downRawX),
+                                screen.width() - v.getWidth());
+                        lp.y = clamp(startY + (int) (event.getRawY() - downRawY),
+                                screen.height() - v.getHeight());
+                        try {
+                            windowManager.updateViewLayout(v, lp);
+                        } catch (Exception e) {
+                            Log.w(TAG, "Could not move scroll bubbles overlay", e);
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        ShortFormMode.prefs(service).edit()
+                                .putInt(KEY_BUBBLE_X, lp.x)
+                                .putInt(KEY_BUBBLE_Y, lp.y)
+                                .apply();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+    }
+
+    private static int clamp(int value, int max) {
+        return Math.max(0, Math.min(value, Math.max(0, max)));
     }
 
     private void hideOverlay() {

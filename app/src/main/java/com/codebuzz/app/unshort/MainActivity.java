@@ -7,16 +7,20 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -39,8 +43,9 @@ public class MainActivity extends AppCompatActivity {
             4, 10, 20, 30, 60, 120, 180, 240, 360, 480, 720, 960, 1440};
 
     private static final int[] APP_LABELS = {
-            R.string.app_label_instagram, R.string.app_label_youtube, R.string.app_label_tiktok};
-    private static final int[] APP_ROWS = {R.id.rowInstagram, R.id.rowYoutube, R.id.rowTiktok};
+            R.string.app_label_instagram, R.string.app_label_youtube, R.string.app_label_tiktok,
+            R.string.app_label_x};
+    private static final int[] APP_ROWS = {R.id.rowInstagram, R.id.rowYoutube, R.id.rowTiktok, R.id.rowX};
 
     // Asked for when a Focus Session starts; once granted, re-post the session's
     // notification, which was dropped while the permission was missing.
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 ContextCompat.getColor(this, R.color.series_instagram),
                 ContextCompat.getColor(this, R.color.series_youtube),
                 ContextCompat.getColor(this, R.color.series_tiktok),
+                ContextCompat.getColor(this, R.color.series_x),
         };
 
         findViewById(R.id.openSettingsButton).setOnClickListener(v ->
@@ -93,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         buildLegend();
+
+        findViewById(R.id.limitChangeButton).setOnClickListener(v -> showLimitDialog());
 
         Button focusSessionButton = findViewById(R.id.focusSessionButton);
         TimeLimitManager tlm = TimeLimitManager.getInstance(this);
@@ -118,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         renderStatus();
         renderToday();
+        renderLimit();
         renderChart();
         renderBreakdown();
         updateFocusSessionButton(findViewById(R.id.focusSessionButton),
@@ -179,6 +188,47 @@ public class MainActivity extends AppCompatActivity {
         } else {
             pace.setVisibility(View.GONE);
         }
+    }
+
+    private void renderLimit() {
+        ((TextView) findViewById(R.id.limitTitle)).setText(
+                getString(R.string.dash_limit_title, ScrollLimit.getMinutes(this)));
+    }
+
+    private void showLimitDialog() {
+        EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint(R.string.dash_limit_dialog_hint);
+        input.setText(String.valueOf(ScrollLimit.getMinutes(this)));
+        input.setSelectAllOnFocus(true);
+
+        int margin = Math.round(20 * getResources().getDisplayMetrics().density);
+        FrameLayout container = new FrameLayout(this);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(margin, margin / 2, margin, 0);
+        container.addView(input, lp);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dash_limit_dialog_title)
+                .setView(container)
+                .setPositiveButton(R.string.dash_limit_save, (d, w) -> {
+                    int minutes;
+                    try {
+                        minutes = Integer.parseInt(input.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        minutes = 0;
+                    }
+                    if (minutes < ScrollLimit.MIN_MINUTES || minutes > ScrollLimit.MAX_MINUTES) {
+                        Toast.makeText(this, getString(R.string.dash_limit_invalid,
+                                ScrollLimit.MIN_MINUTES, ScrollLimit.MAX_MINUTES), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ScrollLimit.setMinutes(this, minutes);
+                    renderLimit();
+                })
+                .setNegativeButton(R.string.dash_limit_cancel, null)
+                .show();
     }
 
     private void renderChart() {

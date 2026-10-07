@@ -21,7 +21,8 @@ final class ScrollStats {
     static final String APP_INSTAGRAM = "instagram";
     static final String APP_YOUTUBE = "youtube";
     static final String APP_TIKTOK = "tiktok";
-    static final String[] APPS = {APP_INSTAGRAM, APP_YOUTUBE, APP_TIKTOK};
+    static final String APP_X = "x";
+    static final String[] APPS = {APP_INSTAGRAM, APP_YOUTUBE, APP_TIKTOK, APP_X};
 
     private static final String PREFS_NAME = "scroll_stats";
     private static final int KEEP_DAYS = 30;
@@ -41,31 +42,13 @@ final class ScrollStats {
         pruneOldDays();
     }
 
-    /** Maps a package name to its dashboard app, or null if it isn't a tracked app. */
-    static String appFor(String packageName) {
-        if (packageName == null) return null;
-        switch (packageName) {
-            case "com.instagram.android":
-                return APP_INSTAGRAM;
-            case "com.google.android.youtube":
-                return APP_YOUTUBE;
-            case "com.zhiliaoapp.musically":
-            case "com.ss.android.ugc.trill":
-                return APP_TIKTOK;
-            default:
-                return null;
-        }
-    }
-
-    void addSwipe(String packageName) {
-        String app = appFor(packageName);
+    void addSwipe(String app) {
         if (app == null) return;
         String key = key(today(), app, "s");
         prefs.edit().putInt(key, prefs.getInt(key, 0) + 1).apply();
     }
 
-    void addTime(String packageName, long ms) {
-        String app = appFor(packageName);
+    void addTime(String app, long ms) {
         if (app == null || ms <= 0) return;
         String key = key(today(), app, "t");
         prefs.edit().putLong(key, prefs.getLong(key, 0L) + ms).apply();

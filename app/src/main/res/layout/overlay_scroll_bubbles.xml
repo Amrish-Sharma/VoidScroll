@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/scrollCountBubble"
         android:layout_width="68dp"
         android:layout_height="68dp"
         android:background="@drawable/bg_scroll_bubble"
@@ -29,6 +30,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/scrollTimeBubble"
         android:layout_width="68dp"
         android:layout_height="68dp"
         android:layout_marginTop="8dp"

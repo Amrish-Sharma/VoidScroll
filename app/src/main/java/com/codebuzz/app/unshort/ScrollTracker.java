@@ -1,7 +1,10 @@
 package com.codebuzz.app.unshort;
 
 import android.accessibilityservice.AccessibilityService;
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -9,6 +12,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
@@ -21,7 +25,8 @@ import java.util.Locale;
  * Tracks mindless scrolling in short-form video feeds (Instagram Reels, YouTube
  * Shorts, TikTok, X videos, and their web versions in Chrome). While the user is
  * in one of those feeds, two translucent bubbles are shown on top of it: one
- * with the number of swipes made and one with the time spent in the feed.
+ * with the number of swipes made and one with the time spent in the feed. They
+ * are green until the session passes the {@link ScrollLimit}, then red.
  * Totals are also recorded in {@link ScrollStats} for the dashboard.
  */
 class ScrollTracker {
@@ -54,9 +59,17 @@ class ScrollTracker {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable tick = this::onTick;
 
+    private static final String KEY_BUBBLE_X = "scroll_bubble_x";
+    private static final String KEY_BUBBLE_Y = "scroll_bubble_y";
+
     private View overlay;
+    private WindowManager.LayoutParams overlayParams;
+    private View scrollCountBubble;
+    private View timeBubble;
     private TextView scrollCountText;
     private TextView timeText;
+    // Whether the bubbles currently show the over-limit color; null until first drawn.
+    private Boolean shownOverLimit = null;
 
     private boolean inFeed = false;
     // Dashboard app (ScrollStats.APPS) of the current or last feed.
@@ -203,6 +216,15 @@ class ScrollTracker {
         if (overlay == null) return;
         scrollCountText.setText(String.valueOf(scrollCount));
         timeText.setText(formatTime(feedTimeMs));
+
+        // Green while the session is within the scroll limit, red once it is past it.
+        boolean overLimit = feedTimeMs > ScrollLimit.getMs(service);
+        if (shownOverLimit == null || shownOverLimit != overLimit) {
+            int background = overLimit ? R.drawable.bg_scroll_bubble_over : R.drawable.bg_scroll_bubble;
+            scrollCountBubble.setBackgroundResource(background);
+            timeBubble.setBackgroundResource(background);
+            shownOverLimit = overLimit;
+        }
     }
 
     static String formatTime(long ms) {
@@ -220,18 +242,23 @@ class ScrollTracker {
             overlay = LayoutInflater.from(service).inflate(R.layout.overlay_scroll_bubbles, null);
             scrollCountText = overlay.findViewById(R.id.scrollCountText);
             timeText = overlay.findViewById(R.id.scrollTimeText);
+            scrollCountBubble = overlay.findViewById(R.id.scrollCountBubble);
+            timeBubble = overlay.findViewById(R.id.scrollTimeBubble);
+            shownOverLimit = null;
 
+            SharedPreferences prefs = ShortFormMode.prefs(service);
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                    // Purely informational: never steal touches or focus from the feed.
+                    // Only the bubbles themselves take touches (to be dragged out of
+                    // the way); everything around them still reaches the feed.
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT);
             lp.gravity = Gravity.TOP | Gravity.START;
-            lp.x = dp(12);
-            lp.y = dp(120);
+            lp.x = prefs.getInt(KEY_BUBBLE_X, dp(12));
+            lp.y = prefs.getInt(KEY_BUBBLE_Y, dp(120));
             try {
                 windowManager.addView(overlay, lp);
             } catch (Exception e) {
@@ -239,8 +266,57 @@ class ScrollTracker {
                 overlay = null;
                 return;
             }
+            overlayParams = lp;
+            enableDragging();
         }
         overlay.setVisibility(View.VISIBLE);
+    }
+
+    // Lets the user drag the bubbles anywhere on screen; the spot is remembered.
+    @SuppressLint("ClickableViewAccessibility")
+    private void enableDragging() {
+        overlay.setOnTouchListener(new View.OnTouchListener() {
+            private int startX, startY;
+            private float downRawX, downRawY;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                WindowManager.LayoutParams lp = overlayParams;
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startX = lp.x;
+                        startY = lp.y;
+                        downRawX = event.getRawX();
+                        downRawY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        Rect screen = windowManager.getCurrentWindowMetrics().getBounds();
+                        lp.x = clamp(startX + (int) (event.getRawX() - downRawX),
+                                screen.width() - v.getWidth());
+                        lp.y = clamp(startY + (int) (event.getRawY() - downRawY),
+                                screen.height() - v.getHeight());
+                        try {
+                            windowManager.updateViewLayout(v, lp);
+                        } catch (Exception e) {
+                            Log.w(TAG, "Could not move scroll bubbles overlay", e);
+                        }
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        ShortFormMode.prefs(service).edit()
+                                .putInt(KEY_BUBBLE_X, lp.x)
+                                .putInt(KEY_BUBBLE_Y, lp.y)
+                                .apply();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+    }
+
+    private static int clamp(int value, int max) {
+        return Math.max(0, Math.min(value, Math.max(0, max)));
     }
 
     private void hideOverlay() {

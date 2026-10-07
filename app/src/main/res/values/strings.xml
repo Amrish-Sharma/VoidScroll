@@ -35,6 +35,14 @@
     <string name="dash_compare_same">Same as yesterday</string>
     <string name="dash_compare_none">No Reels, Shorts, TikTok or X videos yet today</string>
     <string name="dash_pace">About %1$s per video on average</string>
+    <string name="dash_limit_title">Scroll limit: %1$d min</string>
+    <string name="dash_limit_body">The bubbles stay green while a scrolling session is within this, and turn red once it runs over. Drag them anywhere on screen.</string>
+    <string name="dash_limit_change">Change</string>
+    <string name="dash_limit_dialog_title">Scroll limit</string>
+    <string name="dash_limit_dialog_hint">Minutes per session</string>
+    <string name="dash_limit_save">Save</string>
+    <string name="dash_limit_cancel">Cancel</string>
+    <string name="dash_limit_invalid">Enter a number of minutes from %1$d to %2$d</string>
     <string name="dash_focus_start">Start Focus Session</string>
     <string name="dash_focus_end">End Focus Session</string>
     <string name="dash_status_service_title">Turn on tracking</string>
